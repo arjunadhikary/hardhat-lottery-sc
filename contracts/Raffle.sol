@@ -127,7 +127,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return i_minimum_to_enter;
     }
 
-    function raffleState() public view returns (uint256) {
+    function getIndexedPlayer(uint256 index) public view returns (address) {
+        return (s_players[index]);
+    }
+
+    function getRaffleState() public view returns (uint256) {
         return uint256(s_state);
     }
 
