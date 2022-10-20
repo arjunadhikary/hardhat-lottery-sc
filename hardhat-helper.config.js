@@ -1,5 +1,4 @@
 const { ethers } = require("hardhat")
-
 const developmentChain = ["hardhat", "localhost"]
 const otherConfig = {
   minimumAmountToEnter: ethers.utils.parseEther("0.01"),
@@ -10,7 +9,7 @@ const otherConfig = {
 }
 
 const networkConfig = {
-  1: {
+  5: {
     networkName: "goerli",
     subscriptionId: "4000",
     vrfCoordinator: "0x271682DEB8C4E0901D1a1550aD2e64D568E69909",

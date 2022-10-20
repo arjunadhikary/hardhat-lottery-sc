@@ -10,7 +10,7 @@ require("dotenv").config()
 
 const accounts = process.env.ACCOUNT_PRIVATE_KEY || ""
 const url = process.env.GEORLI_NETWORK_URL || ""
-const apikey = process.env.ETHERSCAN_API_KEY
+const apikey = process.env.ETHERSCAN_API_KEY || ""
 module.exports = {
   solidity: "0.8.7",
   defaultNetwork: "hardhat",
@@ -20,14 +20,16 @@ module.exports = {
       blockConformations: 1,
     },
     goerli: {
-      chainId: 1,
+      chainId: 5,
       blockConformations: 6,
       url,
       accounts: [accounts],
     },
   },
   etherscan: {
-    apikey,
+    apiKey: {
+      goerli: apikey,
+    },
   },
   namedAccounts: {
     deployer: {
