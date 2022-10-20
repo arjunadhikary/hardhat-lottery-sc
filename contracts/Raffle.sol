@@ -72,8 +72,8 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
 
-        (bool sucess, ) = payable(s_latestWinner).call{value: address(this).balance}("");
-        if (!sucess) revert Raffel__Transfer_Failed();
+        (bool success, ) = payable(s_latestWinner).call{value: address(this).balance}("");
+        if (!success) revert Raffel__Transfer_Failed();
         emit winnerList(s_latestWinner);
     }
 

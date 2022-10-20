@@ -89,4 +89,19 @@ const { developmentChain, networkConfig } = require("../../hardhat-helper.config
           assert.equal(raffleState.toString(), "1")
         })
       })
+      describe("fulfillRandomWord", () => {
+        beforeEach(async function () {
+          await raffle.enterInLottery({ value: minimumAmountToEnter })
+          await ethers.provider.send("evm_increaseTime", [+interval + 1])
+          await ethers.provider.send("evm_mine", [])
+        })
+        it("can only be called after fulfill random word", async function () {
+          await expect(
+            vrfCoordinatorV2Mock.fulfillRandomWords(0, raffle.address)
+          ).to.be.revertedWith("nonexistent request")
+          await expect(
+            vrfCoordinatorV2Mock.fulfillRandomWords(1, raffle.address)
+          ).to.be.revertedWith("nonexistent request")
+        })
+      })
     })
