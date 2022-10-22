@@ -40,16 +40,17 @@ const { developmentChain, networkConfig } = require("../../hardhat-helper.config
             })
           ).to.emit(raffle, "lotteryInEnter")
         })
+        it("Fail to enter in raffle, when it is in calculating state", async function () {
+          await raffle.enterInLottery({ value: minimumAmountToEnter })
+          await ethers.provider.send("evm_increaseTime", [+interval + 1])
+          await ethers.provider.send("evm_mine", [])
+          await raffle.performUpkeep([])
+          await expect(raffle.enterInLottery({ value: minimumAmountToEnter })).to.be.revertedWith(
+            "Raffle__NotOpen"
+          )
+        })
       })
-      it("Fail to enter in raffle, when it is in calculating state", async function () {
-        await raffle.enterInLottery({ value: minimumAmountToEnter })
-        await ethers.provider.send("evm_increaseTime", [+interval + 1])
-        await ethers.provider.send("evm_mine", [])
-        await raffle.performUpkeep([])
-        await expect(raffle.enterInLottery({ value: minimumAmountToEnter })).to.be.revertedWith(
-          "Raffle__NotOpen"
-        )
-      })
+
       describe('"Checks upkeep function', () => {
         it("returns false ie fails if no eth is send by people", async function () {
           await ethers.provider.send("evm_increaseTime", [+interval + 1])
@@ -124,11 +125,7 @@ const { developmentChain, networkConfig } = require("../../hardhat-helper.config
               try {
                 const latestWinner = await raffle.getLatestWinner()
                 console.log(latestWinner)
-                console.log(
-                  accounts[0].getAddress(),
-                  accounts[1].getAddress(),
-                  accounts[2].getAddress()
-                )
+
                 const raffleState = await raffle.getRaffleState()
                 const playersInRaffle = await raffle.getNumberOfPlayers()
                 const lastTimeStamp = await raffle.getLatestTimeStamp()
@@ -152,7 +149,6 @@ const { developmentChain, networkConfig } = require("../../hardhat-helper.config
             const transactionReceipt = await transactionResponse.wait(1)
             const requestId = transactionReceipt.events[1].args.requestId
             const winnerStartingBalance = await accounts[1].getBalance()
-
             await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffle.address)
           })
         })
