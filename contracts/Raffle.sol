@@ -17,7 +17,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
 
     address payable[] s_players;
     uint256 private immutable i_minimum_to_enter;
-    VRFCoordinatorV2Interface private immutable vrfCoordinatorV2;
+    VRFCoordinatorV2Interface private immutable i_vrfCoordinatorV2;
     uint16 private constant NUM_WORDS = 1;
     uint16 private constant requestConfirmations = 3;
     uint64 private immutable i_subscriptionId;
@@ -42,7 +42,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         uint32 updateInterval
     ) VRFConsumerBaseV2(vrfCoordinator) {
         i_minimum_to_enter = min;
-        vrfCoordinatorV2 = VRFCoordinatorV2Interface(vrfCoordinator);
+        i_vrfCoordinatorV2 = VRFCoordinatorV2Interface(vrfCoordinator);
         i_subscriptionId = subscriptionId;
         i_gasLane = gasLane;
         i_callbackGasLimit = callbackGasLimit;
@@ -66,13 +66,13 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         uint256, /*requestId*/
         uint256[] memory randomWords
     ) internal override {
-        address winner = s_players[randomWords[0] % s_players.length];
+        address payable winner = s_players[randomWords[0] % s_players.length];
         s_latestWinner = winner;
         s_state = RaffleState.OPENED;
         s_players = new address payable[](0);
         s_lastTimeStamp = block.timestamp;
 
-        (bool success, ) = payable(s_latestWinner).call{value: address(this).balance}("");
+        (bool success, ) = s_latestWinner.call{value: address(this).balance}("");
         if (!success) revert Raffel__Transfer_Failed();
         emit winnerList(winner);
     }
@@ -81,6 +81,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         bytes memory /* checkData */
     )
         public
+        view
         override
         returns (
             bool upkeepNeeded,
@@ -92,6 +93,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         bool hasBalance = address(this).balance > 0;
         bool isNotEmpty = s_players.length > 0;
         upkeepNeeded = (isOpened && timePassed && hasBalance && isNotEmpty);
+        return (upkeepNeeded, "0x0");
     }
 
     function performUpkeep(
@@ -106,7 +108,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
             );
         }
         s_state = RaffleState.CALCULATING;
-        uint256 requestId = vrfCoordinatorV2.requestRandomWords(
+        uint256 requestId = i_vrfCoordinatorV2.requestRandomWords(
             i_gasLane,
             i_subscriptionId,
             requestConfirmations,
