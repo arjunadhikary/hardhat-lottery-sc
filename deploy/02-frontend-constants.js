@@ -1,7 +1,7 @@
 const fs = require("fs")
 const { ethers, network } = require("hardhat")
 
-const frontend_contractLocation = "/home/arjun/raffle-frontend/constants/contractAddress.json"
+const frontend_contractLocation = "/home/arjun/raffle-frontend/constants/contractAddressess.json"
 const frontend_abiLocation = "../raffle-frontend/constants/abi.json"
 
 module.exports = async () => {
@@ -22,7 +22,7 @@ async function storeContractAddress() {
     }
   }
   {
-    contractAddressData[chainId] = raffle.address
+    contractAddressData[chainId] = [raffle.address]
   }
   fs.writeFileSync(frontend_contractLocation, JSON.stringify(contractAddressData))
 }
