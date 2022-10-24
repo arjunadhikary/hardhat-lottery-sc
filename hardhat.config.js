@@ -30,6 +30,16 @@ module.exports = {
     apiKey: {
       goerli: apikey,
     },
+    customChains: [
+      {
+        network: "goerli",
+        chainId: 5,
+        urls: {
+          apiURL: "https://api-rinkeby.etherscan.io/api",
+          browserURL: "https://rinkeby.etherscan.io",
+        },
+      },
+    ],
   },
   namedAccounts: {
     deployer: {
@@ -40,6 +50,6 @@ module.exports = {
     },
   },
   mocha: {
-    timeout: 12000,
+    timeout: 10000000,
   },
 }

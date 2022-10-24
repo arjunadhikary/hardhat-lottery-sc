@@ -20,33 +20,35 @@ developmentChain.includes(network.name)
             raffle.once("winnerList", async () => {
               console.log("Winner picked")
               try {
-                const latestWinner = await raffle.getLatestWinner()
+                setTimeout(async () => {
+                  const latestWinner = await raffle.getLatestWinner()
+                  const raffleState = await raffle.getRaffleState()
+                  const playersInRaffle = await raffle.getNumberOfPlayers()
+                  console.log(latestWinner)
+                  // const lastTimeStamp = await raffle.getLatestTimeStamp()
+                  console.log(
+                    `Raffle is in ${
+                      raffleState.toString() === "0" ? "Open" : "Calculating"
+                    } with ${playersInRaffle} players`
+                  )
+                  assert.equal(raffleState.toString(), "0")
+                  assert.equal(playersInRaffle.toString(), "0")
+                  assert.equal(latestWinner, accounts[0].address)
+                  const winnerEndingBalance = await accounts[0].getBalance()
+                  assert.equal(
+                    winnerEndingBalance.toString(),
+                    winnerStartingBalance.add(raffleEntranceFee).toString()
+                  )
+                  // console.log(lastTimeStamp.toString())
 
-                const raffleState = await raffle.getRaffleState()
-                const playersInRaffle = await raffle.getNumberOfPlayers()
-                const lastTimeStamp = await raffle.getLatestTimeStamp()
-                console.log(lastTimeStamp, startingTimeStamp)
-                console.log(
-                  `Raffle is in ${
-                    +raffleState === 0 ? "Open" : "Calculating"
-                  } with ${playersInRaffle} players`
-                )
-                assert.equal(raffleState.toString(), "0")
-                assert.equal(+playersInRaffle, 0)
-                assert.equal(latestWinner, accounts[0].address)
-                const winnerEndingBalance = await accounts[0].getBalance()
-                assert.equal(+winnerEndingBalance, +winnerStartingBalance.add(raffleEntranceFee))
-                assert(lastTimeStamp > startingTimeStamp)
-
-                resolve()
+                  resolve()
+                }, 10000)
               } catch (error) {
-                console.log(error)
                 reject(error)
               }
             })
             console.log("Entering in lottery......")
             const tx = await raffle.enterInLottery({ value: raffleEntranceFee })
-            console.log(tx.gasPrice().toString())
             await tx.wait(1)
             console.log("Ok, time to wait...")
             const winnerStartingBalance = await accounts[0].getBalance()
